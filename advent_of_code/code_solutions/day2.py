@@ -53,25 +53,6 @@ class Bag:
     def check_valid(self):
         return all(x >= 0 for x in [self.red,self.blue,self.green])
 
-    def __str__(self) -> str:
-        return f"{self.red=} {self.green=} {self.blue=}"
-    
-    def reset(self):
-        self.red, self.green, self.blue = RED, GREEN, BLUE
-    
-    def min_tracker(self, number, colour):
-        match colour:
-            case "red":
-                self.red -= number
-            case "green":
-                self.green -= number
-            case "blue":
-                self.blue -= number
-            case _:
-                print("wow")
-                
-    def check_valid(self):
-        return all(x >= 0 for x in [self.red,self.blue,self.green])
             
     def min_tracker(self, number, colour):
         match colour:
@@ -81,9 +62,15 @@ class Bag:
                 self.green = max(self.green, number)
             case "blue":
                 self.blue = max(self.blue, number)
+    
+    def reset(self):
+        self.red, self.green, self.blue = RED, GREEN, BLUE
 
     def cube_square(self):
         return self.blue*self.red*self.green
+    
+    def __str__(self) -> str:
+        return f"{self.red=} {self.green=} {self.blue=}"
     
 @attr.s(slots=True, auto_attribs=True)
 class Solution:
