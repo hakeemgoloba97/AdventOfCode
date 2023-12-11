@@ -30,7 +30,6 @@
 
 from typing import List
 import attr
-import os 
 
 RED, GREEN, BLUE = 12,13,14
 @attr.s(slots=True, auto_attribs=True)
