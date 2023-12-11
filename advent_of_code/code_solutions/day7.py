@@ -1,12 +1,12 @@
 #! /usr/local/bin/python3.11
 
 from collections import defaultdict
-from typing import List, Set, Dict
+from typing import List, Set, Dict, ValuesView
 import attr
 from copy import copy
 from functools import cmp_to_key
 
-ORDERING = ["HighCard", "OnePair", "TwoPair", "ThreeOfAKind" , "FullHouse", "FourOfAKind" , "FiveOfAKind"]
+ORDERING: List[str] = ["HighCard", "OnePair", "TwoPair", "ThreeOfAKind" , "FullHouse", "FourOfAKind" , "FiveOfAKind"]
 
 @attr.s(slots=True, auto_attribs=True)
 class Card:
@@ -29,7 +29,7 @@ class Card:
     }
 
     @property
-    def value(self):
+    def value(self) -> int:
         return self.card_to_value[self.card]
 
     def __str__(self) -> str:
@@ -44,44 +44,27 @@ class Hand:
         return f"{''.join([c.card for c in self.cards])}"
     
     @property
-    def count_cards(self):
+    def count_cards(self) -> int:
         counts = defaultdict(int)
         for card in self.cards:
             counts[card.card] += 1
         return counts
     
     @property
-    def card_dist(self):
+    def card_dist(self) -> ValuesView:
         return self.count_cards.values()
-    
-    @property
-    def hand_type(self):
-        match sorted(list(self.card_dist),reverse=True):
-            case [5]:
-                return "FiveOfAKind"
-            case [4,1]:
-                return "FourOfAKind"
-            case [3,2]:
-                return "FullHouse"
-            case [3,1,1]:
-                return "ThreeOfAKind"
-            case [2,2,1]:
-                return "TwoPair"
-            case [2,1,1,1]:
-                return "OnePair"
-            case [1,1,1,1,1]:
-                return "HighCard"
             
-    @property
-    def hand_type_2(self):
+    def get_hand_type(self, part:str) -> str:
         dist = self.card_dist
-        if 'J' in self.count_cards:
-            card_count_copy = copy(self.count_cards)
-            j_count = card_count_copy['J']
-            if j_count < 5:
-                del card_count_copy['J']
-                card_count_copy[max(card_count_copy,key=card_count_copy.get)] += j_count
-                dist = card_count_copy.values()
+
+        if part == "part2":
+            if 'J' in self.count_cards:
+                card_count_copy = copy(self.count_cards)
+                j_count = card_count_copy['J']
+                if j_count < 5:
+                    del card_count_copy['J']
+                    card_count_copy[max(card_count_copy,key=card_count_copy.get)] += j_count
+                    dist = card_count_copy.values()
 
         match sorted(list(dist),reverse=True):
             case [5]:
@@ -114,7 +97,7 @@ class Solution:
 
     input_file: str
 
-    def solution(self):
+    def solution(self, part):
         with open(self.input_file, "r") as in_file:
             ranks = defaultdict(list)
             sorter = cmp_to_key(cmp_items)
@@ -131,7 +114,7 @@ class Solution:
                 table.append(hand)
             
             for hand in table:
-                ranks[hand.hand_type].append(hand)
+                ranks[hand.get_hand_type(part)].append(hand)
             
             for order in ORDERING:
                 ranks[order].sort(key=sorter)
@@ -148,7 +131,8 @@ def main():
     # Nothing special in solution use regex to extract all digits then sum them up
     # sacraficng speed for memeory efficiency in case of huge input files.. (yield) maybe overkill
     sln: Solution = Solution(f"../input_files/day7.txt")
-    print(sln.solution())
+    print(f"part1 = {sln.solution('part1')}")
+    print(f"part2 = {sln.solution('part2')}")
 
 if __name__ == "__main__":
     main()
