@@ -1,32 +1,35 @@
 #! /usr/local/bin/python3.11
 
 from collections import defaultdict
-from typing import List, Set, Dict, ValuesView
-import attr
+from dataclasses import dataclass, field
+from typing import List, Dict, ValuesView
 from copy import copy
 from functools import cmp_to_key
 
 ORDERING: List[str] = ["HighCard", "OnePair", "TwoPair", "ThreeOfAKind" , "FullHouse", "FourOfAKind" , "FiveOfAKind"]
 
-@attr.s(slots=True, auto_attribs=True)
 class Card:
-    card: str
-    card_to_value: Dict[str, int] = {
-    "A": 14,
-    "K": 13,
-    "Q": 12,
-    "J": 11,
-    "T": 10,
-    "9":  9,
-    "8":  8,
-    "7":  7,
-    "6":  6,
-    "5":  5,
-    "4":  4,
-    "3":  3,
-    "2":  2,
-    "J":  1
-    }
+
+    def __init__(self, card:str , part: str):
+        self.card: str = card
+
+        self.card_to_value: Dict[str, int] = {
+        "A": 14,
+        "K": 13,
+        "Q": 12,
+        "J": 11,
+        "T": 10,
+        "9":  9,
+        "8":  8,
+        "7":  7,
+        "6":  6,
+        "5":  5,
+        "4":  4,
+        "3":  3,
+        "2":  2,
+        }
+        if part == "part2":
+            self.card_to_value['J'] = 1
 
     @property
     def value(self) -> int:
@@ -35,10 +38,10 @@ class Card:
     def __str__(self) -> str:
         return f"{self.card}"
 
-@attr.s(slots=True, auto_attribs=True)
+@dataclass
 class Hand:
-    cards: List[Card]
-    bid: int
+    cards: List[Card] = field(default_factory=list)
+    bid: int = field(default_factory=list)
 
     def __str__(self) -> str:
         return f"{''.join([c.card for c in self.cards])}"
@@ -65,22 +68,23 @@ class Hand:
                     del card_count_copy['J']
                     card_count_copy[max(card_count_copy,key=card_count_copy.get)] += j_count
                     dist = card_count_copy.values()
-
+        shape = None
         match sorted(list(dist),reverse=True):
             case [5]:
-                return "FiveOfAKind"
+                shape = "FiveOfAKind"
             case [4,1]:
-                return "FourOfAKind"
+                shape = "FourOfAKind"
             case [3,2]:
-                return "FullHouse"
+                shape = "FullHouse"
             case [3,1,1]:
-                return "ThreeOfAKind"
+                shape = "ThreeOfAKind"
             case [2,2,1]:
-                return "TwoPair"
+                shape = "TwoPair"
             case [2,1,1,1]:
-                return "OnePair"
+                shape = "OnePair"
             case [1,1,1,1,1]:
-                return "HighCard"
+                shape = "HighCard"
+        return shape
 
 def cmp_items(a:Hand,b:Hand):
     for i in range(len(a.cards)):
@@ -92,10 +96,9 @@ def cmp_items(a:Hand,b:Hand):
             return -1
     return 0
 
-@attr.s(slots=True, auto_attribs=True)
+@dataclass
 class Solution:
-
-    input_file: str
+    input_file: str = field(default_factory=str)
 
     def solution(self, part):
         with open(self.input_file, "r") as in_file:
@@ -109,7 +112,7 @@ class Solution:
                 cards, bid = line.split()
                 card_list = []
                 for c in list(cards):
-                    card_list.append(Card(c))
+                    card_list.append(Card(c,part))
                 hand = Hand(card_list, int(bid))
                 table.append(hand)
             
@@ -127,10 +130,8 @@ class Solution:
             
             return(total)
 
-def main():
-    # Nothing special in solution use regex to extract all digits then sum them up
-    # sacraficng speed for memeory efficiency in case of huge input files.. (yield) maybe overkill
-    sln: Solution = Solution(f"../input_files/day7.txt")
+def main():    
+    sln: Solution = Solution("../input_files/day7.txt")
     print(f"part1 = {sln.solution('part1')}")
     print(f"part2 = {sln.solution('part2')}")
 
