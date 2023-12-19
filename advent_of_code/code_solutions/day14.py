@@ -138,7 +138,7 @@ class Solution:
             return str(check_total(field_map))
 def main():
     sln: Solution = Solution("../input_files/day14.txt")
-    print(' '.join([sln.solution(), 20]))
+    print(' '.join([sln.solution(), "20"]))
 
 if __name__ == "__main__":
     main()
